@@ -6,12 +6,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class MainApplication {
     public static void main(String[] args){
-
+        List<Character> charList = new ArrayList <>();
         SerialPort[] openPorts = SerialPort.getCommPorts();
         for (SerialPort s:
              openPorts) {
@@ -37,10 +39,22 @@ public class MainApplication {
                 for (char ch:
                      chars) {
                     int ascii=ch;
-                    if(ascii==10)
-                        System.out.println();
+                    if(ascii==10){
+                        StringBuilder sb = new StringBuilder();
+
+                        // Appends characters one by one
+                        for (Character character : charList) {
+                            sb.append(character);
+                        }
+
+                        // convert in string
+                        String data = sb.toString();
+
+                        // print string
+                        System.out.println(data);
+                    }
                     else
-                        System.out.print(ch);
+                        charList.add(ch);
                 }
             }
         });
