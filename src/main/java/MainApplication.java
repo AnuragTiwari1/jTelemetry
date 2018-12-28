@@ -33,8 +33,15 @@ public class MainApplication {
                 byte[] newData = new byte[comPort.bytesAvailable()];
                 int numRead = comPort.readBytes(newData, newData.length);
                 String result = new String(newData);
-                System.out.println(result);
-
+                char[] chars=result.toCharArray();
+                for (char ch:
+                     chars) {
+                    int ascii=ch;
+                    if(ascii==10)
+                        System.out.println();
+                    else
+                        System.out.print(ch);
+                }
             }
         });
 }
