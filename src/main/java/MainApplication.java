@@ -1,7 +1,13 @@
 import com.fazecast.jSerialComm.SerialPort;
+import com.fazecast.jSerialComm.SerialPortDataListener;
+import com.fazecast.jSerialComm.SerialPortEvent;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class MainApplication {
     public static void main(String[] args){
@@ -11,22 +17,25 @@ public class MainApplication {
              openPorts) {
             System.out.println("open port>>>>"+s.getSystemPortName()+" serving>>>"+s.getDescriptivePortName());
         }
-
         Scanner scanner = new Scanner(System.in);
         System.out.println("enter serial port to open (e.g., /dev/ttyS0 or COM3)::");
         String port = scanner.nextLine();
-        SerialPort comPort = SerialPort.getCommPort(port);
+        final SerialPort comPort = SerialPort.getCommPort(port);
         comPort.openPort();
-        try {
-            while (true)
+        comPort.addDataListener(new SerialPortDataListener() {
+            @Override
+            public int getListeningEvents() { return SerialPort.LISTENING_EVENT_DATA_AVAILABLE; }
+            @Override
+            public void serialEvent(SerialPortEvent event)
             {
-                while (comPort.bytesAvailable() == 0)
-                    Thread.sleep(20);
+                if (event.getEventType() != SerialPort.LISTENING_EVENT_DATA_AVAILABLE)
+                    return;
+                byte[] newData = new byte[comPort.bytesAvailable()];
+                int numRead = comPort.readBytes(newData, newData.length);
+                String result = new String(newData);
+                System.out.println(result);
 
-                byte[] readBuffer = new byte[comPort.bytesAvailable()];
-                System.out.println("arduino says>>>>>"+new String(readBuffer));
             }
-        } catch (Exception e) { e.printStackTrace(); }
-        comPort.closePort();
-    }
+        });
+}
 }
