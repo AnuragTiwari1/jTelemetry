@@ -20,7 +20,7 @@ public class MainApplication {
         SerialPort comPort = SerialPort.getCommPorts()[0];
         comPort.openPort();
         if(comPort.isOpen()){
-            System.out.println("opened Port for communication");
+            System.out.println("opened Port for communication::"+comPort.getSystemPortName()+"::curently talking on to :::"+comPort.getDescriptivePortName());
         }
         comPort.addDataListener(new SerialPortDataListener() {
             @Override
