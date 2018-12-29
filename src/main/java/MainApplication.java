@@ -2,28 +2,26 @@ import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class MainApplication {
-    public static void main(String[] args){
-        List<Character> charList = new ArrayList <>();
-        SerialPort[] openPorts = SerialPort.getCommPorts();
-        for (SerialPort s:
-             openPorts) {
-            System.out.println("open port>>>>"+s.getSystemPortName()+" serving>>>"+s.getDescriptivePortName());
+    public static void main(String[] args) throws IOException {
+        String filePath= new String("rpiData.txt");
+        File file = new File(filePath);
+        if(!file.exists()){
+            System.out.println("crated new file");
+            file.createNewFile();
         }
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("enter serial port to open (e.g., /dev/ttyS0 or COM3)::");
-        String port = scanner.nextLine();
-        final SerialPort comPort = SerialPort.getCommPort(port);
+        List<Character> charList = new ArrayList <>();
+        SerialPort comPort = SerialPort.getCommPorts()[0];
         comPort.openPort();
+        if(comPort.isOpen()){
+            System.out.println("opened Port for communication");
+        }
         comPort.addDataListener(new SerialPortDataListener() {
             @Override
             public int getListeningEvents() { return SerialPort.LISTENING_EVENT_DATA_AVAILABLE; }
@@ -52,6 +50,15 @@ public class MainApplication {
 
                         // print string
                         System.out.println(data);
+                        BufferedWriter output = null;
+                        try {
+                            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+                            writer.write(data);
+
+                            writer.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                     else
                         charList.add(ch);
